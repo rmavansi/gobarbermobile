@@ -1,22 +1,75 @@
-import React from 'react';
-import { Text } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Image } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
-import Input from '~/components/Input';
-import Button from '~/components/Button';
+import logo from '~/assets/logo.png';
+
 import Background from '~/components/Background';
 
-// import { Container } from './styles';
+import { signInRequest } from '~/store/modules/auth/actions';
 
-export default function SignIn() {
+import {
+  Container,
+  Form,
+  FormInput,
+  SubmitButton,
+  SignLink,
+  SignLinkText,
+} from './styles';
+
+export default function SignIn({ navigation }) {
+  const dispatch = useDispatch();
+  const passwordRef = useRef();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const loading = useSelector(state => state.auth.loading);
+
+  function handleSubmit() {
+    dispatch(signInRequest(email, password));
+  }
+
   return (
     <Background>
-      <Text>SignIn</Text>
-      <Input
-        style={{ marginTop: 30 }}
-        icon="call"
-        placeholder="Type your name"
-      />
-      <Button>Login</Button>
+      <Container>
+        <Image source={logo} />
+
+        <Form>
+          <FormInput
+            icon="mail-outline"
+            keyboardType="email-addres"
+            autoCorrect={false}
+            autoCapitalize="none"
+            placeholder="Email"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current.focus()}
+            value={email}
+            onChangeText={setEmail}
+          />
+          <FormInput
+            icon="lock-outline"
+            secureTextEntry
+            placeholder="Password"
+            ref={passwordRef}
+            returnKeyType="send"
+            onSubmitEditing={handleSubmit}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <SubmitButton loading={loading} onPress={handleSubmit}>
+            Login
+          </SubmitButton>
+        </Form>
+
+        <SignLink
+          onPress={() => {
+            navigation.navigate('SignUp');
+          }}
+        >
+          <SignLinkText>Create your free account</SignLinkText>
+        </SignLink>
+      </Container>
     </Background>
   );
 }
